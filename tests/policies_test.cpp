@@ -6,6 +6,8 @@
 
 #include "backoffxx/policies.h"
 
+#include <algorithm>
+
 using namespace std::chrono_literals;
 
 namespace {

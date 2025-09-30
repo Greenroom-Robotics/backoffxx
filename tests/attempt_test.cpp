@@ -40,6 +40,22 @@ TEST(Attempt, SucceedAfterRetry) {
     EXPECT_EQ(attempt, 3);
 }
 
+static int func_attempt = 0;
+auto do_something() {
+    return ++func_attempt == 3 ? attempt_rc::success
+                  : attempt_rc::failure;
+}
+
+TEST(Attempt, SucceedAfterRetryFunc) {
+    constexpr auto delay = 200ms;
+    constexpr auto max_retries = 5u;
+
+    auto result = backoffxx::attempt(backoffxx::make_exponential(delay, max_retries), &do_something);
+
+    EXPECT_TRUE(result.ok());
+    EXPECT_EQ(func_attempt, 3);
+}
+
 TEST(Attempt, RetryExhausted) {
     auto result = backoffxx::attempt(backoffxx::make_decorrelated_jitter(1s, 3, 5s),
                                      [] {
